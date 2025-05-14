@@ -1,106 +1,104 @@
-/* style.css */
 body {
-  background: #1e2a32;
-  color: #fff;
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
   margin: 0;
-}
-
-header {
-  background: #2d3b45;
-  padding: 1rem;
-  text-align: center;
-}
-
-header img {
-  height: 80px;
-}
-
-h1 {
-  color: #aef9c6;
-  margin: 0.5rem 0 0;
+  background: #232f34;
+  color: #ffffff;
+  box-sizing: border-box;
 }
 
 main {
-  max-width: 1000px;
-  margin: auto;
-  padding: 1.5rem;
-}
-
-.section {
-  background: #2a3943;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  border-radius: 8px;
-}
-
-input,
-select,
-button {
+  max-width: 100%;
   width: 100%;
-  margin-bottom: 1rem;
+  margin: auto;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+h1, h2, h3 {
+  text-align: center;
+  color: #4caf50;
+}
+
+form, table, .leaderboard, #matchHistory, #playerModal {
+  margin-top: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input, select, button {
   padding: 0.5rem;
-  font-size: 1rem;
+  margin: 0.3rem;
   border-radius: 5px;
   border: none;
+  box-sizing: border-box;
 }
 
 button {
-  background: #42b883;
+  background-color: #4caf50;
   color: white;
   cursor: pointer;
 }
 
 button:hover {
-  background: #369b6e;
+  background-color: #45a049;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   background: #344955;
+  table-layout: fixed;
+  word-wrap: break-word;
 }
 
-th,
-td {
-  border: 1px solid #456b7c;
-  padding: 0.6rem;
+th, td {
+  padding: 0.5rem;
   text-align: center;
+  border: 1px solid #ddd;
 }
 
 th {
-  background: #2e3f4f;
+  background-color: #4caf50;
+  color: white;
 }
 
-.player-link {
-  color: #7fd9b8;
-  cursor: pointer;
+tr:nth-child(even) {
+  background-color: #3e4e5e;
 }
 
+tr:hover {
+  background-color: #4a6572;
+}
+
+.hidden {
+  display: none;
+}
+
+#leaderboardSection {
+  overflow-x: auto;
+}
+
+/* Modal */
 #playerModal {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: none;
-  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
   align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
 #playerModal .content {
-  background: #2a3943;
+  background-color: #ffffff;
+  color: #000000;
   padding: 2rem;
   border-radius: 10px;
-  max-width: 600px;
-  width: 100%;
-}
-
-#logoutBtn {
-  background: #e74c3c;
-}
-
-#logoutBtn:hover {
-  background: #c0392b;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
