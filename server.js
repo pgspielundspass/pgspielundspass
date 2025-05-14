@@ -1,48 +1,33 @@
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
+const express = require('express');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
+const path = require('path');
+
+dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-const DATA_PATH = path.join(__dirname, "data", "matches.json");
+// Alle Daten landen im Speicher (alternativ: JSON-Datei oder DB)
+let matches = [];
 
-app.use(express.json());
-app.use(express.static("public"));
+app.use(bodyParser.json());
+app.use(express.static('public'));
 
-// Matches laden
-app.get("/api/matches", (req, res) => {
-  fs.readFile(DATA_PATH, (err, data) => {
-    if (err) return res.status(500).json({ error: "Datei nicht lesbar" });
-    res.json(JSON.parse(data));
-  });
+// API zum Hinzufügen eines Spiels – nur mit Passwort
+app.post('/api/addMatch', (req, res) => {
+  const { player1, player2, winner, password } = req.body;
+
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.status(403).json({ message: 'Falsches Admin-Passwort' });
+  }
+
+  matches.push({ player1, player2, winner, timestamp: Date.now() });
+  res.json({ message: 'Spiel erfolgreich gespeichert' });
 });
 
-// Neues Match speichern
-app.post("/api/matches", (req, res) => {
-  const newMatch = req.body;
-
-  fs.readFile(DATA_PATH, (err, data) => {
-    if (err) return res.status(500).json({ error: "Lesefehler" });
-    const matches = JSON.parse(data);
-    matches.push(newMatch);
-    fs.writeFile(DATA_PATH, JSON.stringify(matches, null, 2), err => {
-      if (err) return res.status(500).json({ error: "Schreibfehler" });
-      res.json({ success: true });
-    });
-  });
-});
-
-// Letztes Match löschen
-app.delete("/api/matches/last", (req, res) => {
-  fs.readFile(DATA_PATH, (err, data) => {
-    if (err) return res.status(500).json({ error: "Lesefehler" });
-    const matches = JSON.parse(data);
-    matches.pop();
-    fs.writeFile(DATA_PATH, JSON.stringify(matches, null, 2), err => {
-      if (err) return res.status(500).json({ error: "Schreibfehler" });
-      res.json({ success: true });
-    });
-  });
+// API zum Laden der Matches
+app.get('/api/matches', (req, res) => {
+  res.json(matches);
 });
 
 app.listen(PORT, () => {
