@@ -104,3 +104,26 @@ th {
 #logoutBtn:hover {
   background: #c0392b;
 }
+@media screen and (max-width: 768px) and (orientation: portrait) {
+  body::before {
+    content: "Bitte drehe dein Gerät ins Querformat.";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 20px;
+    z-index: 9999;
+    padding: 20px;
+  }
+
+  body > *:not(style) {
+    display: none !important;
+  }
+}
