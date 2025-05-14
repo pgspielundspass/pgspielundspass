@@ -97,3 +97,18 @@ function getMatchResultText(match, name) {
   if ((match.result === "1" && match.p1.name === name) || (match.result === "2" && match.p2.name === name)) return "Gewonnen";
   return "Verloren";
 }
+function addMatch() {
+  const player1 = document.getElementById("player1").value;
+  const player2 = document.getElementById("player2").value;
+  const winner = document.getElementById("winner").value;
+  const password = prompt("Admin-Passwort:");
+
+  fetch("/api/addMatch", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ player1, player2, winner, password }),
+  })
+    .then((res) => res.json())
+    .then((data) => alert(data.message))
+    .catch((err) => alert("Fehler beim Speichern"));
+}
