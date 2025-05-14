@@ -1,16 +1,25 @@
 let matches = [];
-let currentRole = null;
+let authToken = null;
 
 document.addEventListener("DOMContentLoaded", fetchMatches);
 
 function login() {
   const pw = document.getElementById("password").value;
-  if (pw === "QWERTZ123!") {
+  fetch("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: pw })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Login fehlgeschlagen");
+    return res.json();
+  })
+  .then(data => {
+    authToken = data.token;
     document.getElementById("admin").style.display = "block";
     document.getElementById("login").style.display = "none";
-  } else {
-    alert("Falsches Passwort!");
-  }
+  })
+  .catch(() => alert("Falsches Passwort!"));
 }
 
 function fetchMatches() {
@@ -30,13 +39,19 @@ function addMatch() {
 
   fetch("/api/matches", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": authToken
+    },
     body: JSON.stringify({ p1, p2, result, date: new Date().toISOString() })
   }).then(fetchMatches);
 }
 
 function undoLast() {
-  fetch("/api/matches/last", { method: "DELETE" }).then(fetchMatches);
+  fetch("/api/matches/last", {
+    method: "DELETE",
+    headers: { "Authorization": authToken }
+  }).then(fetchMatches);
 }
 
 function calculateStats(matches) {
