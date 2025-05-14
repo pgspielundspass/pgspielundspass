@@ -1,99 +1,106 @@
-/* Grundlayout */
+/* style.css */
 body {
-  font-family: Arial, sans-serif;
+  background: #1e2a32;
+  color: #fff;
+  font-family: sans-serif;
   margin: 0;
-  padding: 0;
-  background-color: #f0f0f0;
-  color: #333;
-  overflow-x: hidden;
 }
 
-/* Hauptcontainer */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-/* Überschrift mit lesbarem Neonblau */
-h1 {
+header {
+  background: #2d3b45;
+  padding: 1rem;
   text-align: center;
-  color: #00bfff; /* gut lesbares Neonblau */
-  text-shadow: 0 0 3px #00bfff, 0 0 6px #00bfff;
 }
 
-/* Tabellen */
-.table-wrapper {
-  overflow-x: auto;
+header img {
+  height: 80px;
+}
+
+h1 {
+  color: #aef9c6;
+  margin: 0.5rem 0 0;
+}
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 1.5rem;
+}
+
+.section {
+  background: #2a3943;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  background: #42b883;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #369b6e;
 }
 
 table {
   width: 100%;
-  min-width: 600px;
   border-collapse: collapse;
-  background-color: #fff;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  background: #344955;
 }
 
-th, td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ccc;
+th,
+td {
+  border: 1px solid #456b7c;
+  padding: 0.6rem;
+  text-align: center;
 }
 
 th {
-  background-color: #3f51b5; /* Blau */
-  color: white;
+  background: #2e3f4f;
 }
 
-tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-/* Buttons */
-button {
-  background-color: #4caf50; /* Grün */
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  margin: 5px;
-  border-radius: 5px;
+.player-link {
+  color: #7fd9b8;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
-button:hover {
-  background-color: #45a049;
+#playerModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Formularfelder */
-input, select {
-  padding: 8px;
-  margin: 5px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+#playerModal .content {
+  background: #2a3943;
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 100%;
 }
 
-/* Responsive Anpassung */
-@media (max-width: 768px) {
-  .container {
-    padding: 10px;
-  }
+#logoutBtn {
+  background: #e74c3c;
+}
 
-  /* Nur Querformat erlauben */
-  @media screen and (orientation: portrait) {
-    body > * {
-      display: none !important;
-    }
-
-    body::before {
-      content: "Bitte drehe dein Gerät ins Querformat.";
-      display: block;
-      background: #ff4444;
-      color: white;
-      padding: 20px;
-      font-size: 18px;
-      text-align: center;
-    }
-  }
+#logoutBtn:hover {
+  background: #c0392b;
 }
