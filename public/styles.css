@@ -15,16 +15,21 @@ body {
   padding: 20px;
 }
 
-/* Überschrift */
+/* Überschrift mit lesbarem Neonblau */
 h1 {
   text-align: center;
-  color: #00f7ff; /* Neonblau */
-  text-shadow: 0 0 5px #00f7ff, 0 0 10px #00f7ff, 0 0 15px #00f7ff;
+  color: #00bfff; /* gut lesbares Neonblau */
+  text-shadow: 0 0 3px #00bfff, 0 0 6px #00bfff;
 }
 
 /* Tabellen */
+.table-wrapper {
+  overflow-x: auto;
+}
+
 table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   background-color: #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
@@ -69,54 +74,26 @@ input, select {
   border: 1px solid #ccc;
 }
 
-/* Responsive Design */
+/* Responsive Anpassung */
 @media (max-width: 768px) {
   .container {
     padding: 10px;
   }
 
-  table, thead, tbody, th, td, tr {
-    display: block;
-  }
-
-  th {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-  }
-
-  td {
-    position: relative;
-    padding-left: 50%;
-    white-space: pre-line;
-  }
-
-  td::before {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    width: 45%;
-    white-space: nowrap;
-    font-weight: bold;
-  }
-
-  /* Querformat-Erkennung */
-  body:before {
-    content: "Bitte drehe dein Gerät ins Querformat.";
-    display: none;
-    background: #ff4444;
-    color: white;
-    padding: 10px;
-    text-align: center;
-  }
-
+  /* Nur Querformat erlauben */
   @media screen and (orientation: portrait) {
     body > * {
       display: none !important;
     }
 
-    body:before {
+    body::before {
+      content: "Bitte drehe dein Gerät ins Querformat.";
       display: block;
+      background: #ff4444;
+      color: white;
+      padding: 20px;
+      font-size: 18px;
+      text-align: center;
     }
   }
 }
