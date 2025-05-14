@@ -1,40 +1,106 @@
+/* style.css */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f4f8;
+  background: #1e2a32;
+  color: #fff;
+  font-family: sans-serif;
   margin: 0;
-  padding: 0;
 }
-.container {
-  width: 90%;
-  max-width: 1000px;
-  margin: auto;
-  padding: 20px;
-  background-color: white;
-  margin-top: 30px;
-  border-radius: 8px;
-}
-h1, h2 {
+
+header {
+  background: #2d3b45;
+  padding: 1rem;
   text-align: center;
 }
-input, select, button {
-  display: block;
-  width: 100%;
-  margin: 5px 0;
-  padding: 8px;
+
+header img {
+  height: 80px;
 }
+
+h1 {
+  color: #aef9c6;
+  margin: 0.5rem 0 0;
+}
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 1.5rem;
+}
+
+.section {
+  background: #2a3943;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  background: #42b883;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #369b6e;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  background: #344955;
 }
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
+
+th,
+td {
+  border: 1px solid #456b7c;
+  padding: 0.6rem;
+  text-align: center;
 }
-#playerDetails {
-  margin-top: 20px;
+
+th {
+  background: #2e3f4f;
 }
-canvas {
-  max-width: 100%;
+
+.player-link {
+  color: #7fd9b8;
+  cursor: pointer;
+}
+
+#playerModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+#playerModal .content {
+  background: #2a3943;
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 100%;
+}
+
+#logoutBtn {
+  background: #e74c3c;
+}
+
+#logoutBtn:hover {
+  background: #c0392b;
 }
