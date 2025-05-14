@@ -1,104 +1,122 @@
+/* Grundlayout */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  background: #232f34;
-  color: #ffffff;
-  box-sizing: border-box;
+  padding: 0;
+  background-color: #f0f0f0;
+  color: #333;
+  overflow-x: hidden;
 }
 
-main {
-  max-width: 100%;
-  width: 100%;
-  margin: auto;
-  padding: 1rem;
-  box-sizing: border-box;
+/* Hauptcontainer */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-h1, h2, h3 {
+/* Überschrift */
+h1 {
   text-align: center;
-  color: #4caf50;
+  color: #00f7ff; /* Neonblau */
+  text-shadow: 0 0 5px #00f7ff, 0 0 10px #00f7ff, 0 0 15px #00f7ff;
 }
 
-form, table, .leaderboard, #matchHistory, #playerModal {
-  margin-top: 1rem;
+/* Tabellen */
+table {
   width: 100%;
-  box-sizing: border-box;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
-input, select, button {
-  padding: 0.5rem;
-  margin: 0.3rem;
-  border-radius: 5px;
-  border: none;
-  box-sizing: border-box;
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
 }
 
-button {
-  background-color: #4caf50;
+th {
+  background-color: #3f51b5; /* Blau */
   color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Buttons */
+button {
+  background-color: #4caf50; /* Grün */
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  margin: 5px;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 button:hover {
   background-color: #45a049;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #344955;
-  table-layout: fixed;
-  word-wrap: break-word;
+/* Formularfelder */
+input, select {
+  padding: 8px;
+  margin: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
-th, td {
-  padding: 0.5rem;
-  text-align: center;
-  border: 1px solid #ddd;
-}
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
 
-th {
-  background-color: #4caf50;
-  color: white;
-}
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
 
-tr:nth-child(even) {
-  background-color: #3e4e5e;
-}
+  th {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
 
-tr:hover {
-  background-color: #4a6572;
-}
+  td {
+    position: relative;
+    padding-left: 50%;
+    white-space: pre-line;
+  }
 
-.hidden {
-  display: none;
-}
+  td::before {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 45%;
+    white-space: nowrap;
+    font-weight: bold;
+  }
 
-#leaderboardSection {
-  overflow-x: auto;
-}
+  /* Querformat-Erkennung */
+  body:before {
+    content: "Bitte drehe dein Gerät ins Querformat.";
+    display: none;
+    background: #ff4444;
+    color: white;
+    padding: 10px;
+    text-align: center;
+  }
 
-/* Modal */
-#playerModal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
+  @media screen and (orientation: portrait) {
+    body > * {
+      display: none !important;
+    }
 
-#playerModal .content {
-  background-color: #ffffff;
-  color: #000000;
-  padding: 2rem;
-  border-radius: 10px;
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-sizing: border-box;
+    body:before {
+      display: block;
+    }
+  }
 }
