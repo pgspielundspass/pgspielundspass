@@ -6,23 +6,16 @@ const crypto = require("crypto");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Pfade für geschützte Matches und Admin-Hash
 const DATA_PATH = path.join(__dirname, "data", "matches.json");
 const HASH_PATH = path.join(__dirname, "admin.hash");
-
-// Pfade für freie Matches und Logs
 const FREI_MATCHES = path.join(__dirname, "data", "frei-matches.json");
 const FREI_LOG = path.join(__dirname, "data", "frei-log.json");
 
-// Admin-Hash laden
 const adminHash = fs.existsSync(HASH_PATH) ? fs.readFileSync(HASH_PATH, "utf-8").trim() : null;
-
 const activeSessions = new Set();
 
 app.use(express.json());
 app.use(express.static("public"));
-
-// --- Hilfsfunktionen für freie Matches ---
 
 function loadJSON(filepath) {
   if (!fs.existsSync(filepath)) return [];
@@ -34,17 +27,14 @@ function saveJSON(filepath, data) {
 }
 
 function getClientIP(req) {
-  // x-forwarded-for für Proxy, sonst remoteAddress
   return (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
 }
 
-// --- Admin Login & Auth Middleware ---
-
+// Admin-Login
 app.post("/api/login", (req, res) => {
   const { password } = req.body;
-  if (!adminHash) {
-    return res.status(500).json({ success: false, error: "Admin-Hash nicht gefunden" });
-  }
+  if (!adminHash) return res.status(500).json({ success: false, error: "Admin-Hash nicht gefunden" });
+
   const hash = crypto.createHash("sha256").update(password).digest("hex");
   if (hash === adminHash) {
     const token = Math.random().toString(36).substring(2);
@@ -64,8 +54,6 @@ function checkAuth(req, res, next) {
   }
 }
 
-// --- Geschützte Matches API ---
-
 app.get("/api/matches", (req, res) => {
   fs.readFile(DATA_PATH, (err, data) => {
     if (err) return res.status(500).json({ error: "Datei nicht lesbar" });
@@ -75,31 +63,20 @@ app.get("/api/matches", (req, res) => {
 
 app.post("/api/matches", checkAuth, (req, res) => {
   const newMatch = req.body;
-  fs.readFile(DATA_PATH, (err, data) => {
-    if (err) return res.status(500).json({ error: "Lesefehler" });
-    const matches = JSON.parse(data);
-    matches.push(newMatch);
-    fs.writeFile(DATA_PATH, JSON.stringify(matches, null, 2), err => {
-      if (err) return res.status(500).json({ error: "Schreibfehler" });
-      res.json({ success: true });
-    });
-  });
+  const matches = loadJSON(DATA_PATH);
+  matches.push(newMatch);
+  saveJSON(DATA_PATH, matches);
+  res.json({ success: true });
 });
 
 app.delete("/api/matches/last", checkAuth, (req, res) => {
-  fs.readFile(DATA_PATH, (err, data) => {
-    if (err) return res.status(500).json({ error: "Lesefehler" });
-    const matches = JSON.parse(data);
-    matches.pop();
-    fs.writeFile(DATA_PATH, JSON.stringify(matches, null, 2), err => {
-      if (err) return res.status(500).json({ error: "Schreibfehler" });
-      res.json({ success: true });
-    });
-  });
+  const matches = loadJSON(DATA_PATH);
+  matches.pop();
+  saveJSON(DATA_PATH, matches);
+  res.json({ success: true });
 });
 
-// --- Freie Matches API ---
-
+// Freie Matches: Eintrag
 app.post("/api/frei/add", (req, res) => {
   const { p1, p2, result, deviceId } = req.body;
   const ip = getClientIP(req);
@@ -129,23 +106,40 @@ app.post("/api/frei/add", (req, res) => {
   res.json({ message: "Eintrag gespeichert!" });
 });
 
+// Freie Matches: Leaderboard
 app.get("/api/frei/leaderboard", (req, res) => {
   const matches = loadJSON(FREI_MATCHES);
   const players = {};
 
   for (const match of matches) {
-    if (match.result === "1") players[match.p1] = (players[match.p1] || 0) + 1;
-    else if (match.result === "2") players[match.p2] = (players[match.p2] || 0) + 1;
+    const { p1, p2, result } = match;
+    const name1 = p1.name.trim();
+    const name2 = p2.name.trim();
+
+    if (!players[name1]) players[name1] = { name: name1, class: p1.class, wins: 0, losses: 0, draws: 0, points: 0 };
+    if (!players[name2]) players[name2] = { name: name2, class: p2.class, wins: 0, losses: 0, draws: 0, points: 0 };
+
+    if (result === "1") {
+      players[name1].wins++;
+      players[name1].points += 3;
+      players[name2].losses++;
+    } else if (result === "2") {
+      players[name2].wins++;
+      players[name2].points += 3;
+      players[name1].losses++;
+    } else if (result === "draw") {
+      players[name1].draws++;
+      players[name2].draws++;
+      players[name1].points += 1;
+      players[name2].points += 1;
+    }
   }
 
-  const leaderboard = Object.entries(players)
-    .map(([name, wins]) => ({ name, wins }))
-    .sort((a, b) => b.wins - a.wins);
-
+  const leaderboard = Object.values(players).sort((a, b) => b.points - a.points);
   res.json(leaderboard);
 });
 
-// --- Server starten ---
 app.listen(PORT, () => {
   console.log(`Server läuft auf http://localhost:${PORT}`);
 });
+
