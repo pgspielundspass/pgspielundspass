@@ -1,10 +1,12 @@
-async function submitMatch() {
-  let deviceId = localStorage.getItem("deviceId");
-  if (!deviceId) {
-    deviceId = crypto.randomUUID();
-    localStorage.setItem("deviceId", deviceId);
-  }
+let deviceId = localStorage.getItem("deviceId");
+if (!deviceId) {
+  deviceId = crypto.randomUUID();
+  localStorage.setItem("deviceId", deviceId);
+}
 
+let leaderboardData = [];
+
+async function submitMatch() {
   const p1 = document.getElementById("p1").value.trim();
   const p2 = document.getElementById("p2").value.trim();
   const result = document.getElementById("result").value;
@@ -25,33 +27,37 @@ async function submitMatch() {
     document.getElementById("status").textContent = data.message;
 
     if (res.ok) {
-      loadLeaderboard();
-      // Optional: Formular leeren
       document.getElementById("p1").value = "";
       document.getElementById("p2").value = "";
       document.getElementById("result").value = "1";
+      await loadLeaderboard();
     }
-  } catch (error) {
-    document.getElementById("status").textContent = "Fehler beim Senden der Daten.";
+  } catch {
+    document.getElementById("status").textContent = "Fehler beim Eintragen.";
   }
 }
 
 async function loadLeaderboard() {
   try {
     const res = await fetch("/api/frei/leaderboard");
-    const data = await res.json();
-
-    const table = document.getElementById("leaderboard");
-    table.innerHTML = "<tr><th>Spieler</th><th>Siege</th></tr>";
-
-    for (const player of data) {
-      const row = `<tr><td>${player.name}</td><td>${player.wins}</td></tr>`;
-      table.innerHTML += row;
-    }
+    leaderboardData = await res.json();
+    renderLeaderboard();
   } catch {
     document.getElementById("status").textContent = "Fehler beim Laden des Leaderboards.";
   }
 }
 
-// Direkt beim Laden Leaderboard laden
+function renderLeaderboard() {
+  const search = document.getElementById("searchInput").value.trim().toLowerCase();
+  const table = document.getElementById("leaderboard");
+  table.innerHTML = "<tr><th>Spieler</th><th>Siege</th></tr>";
+
+  for (const player of leaderboardData) {
+    if (!search || player.name.toLowerCase().includes(search)) {
+      const row = `<tr><td>${player.name}</td><td>${player.wins}</td></tr>`;
+      table.innerHTML += row;
+    }
+  }
+}
+
 loadLeaderboard();
