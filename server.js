@@ -160,3 +160,31 @@ app.listen(PORT, () => {
   console.log(`Server läuft auf http://localhost:${PORT}`);
 });
 
+// Admin-Authentifizierung Middleware (falls noch nicht drin)
+function checkAuth(req, res, next) {
+  const token = req.headers["authorization"];
+  if (activeSessions.has(token)) {
+    next();
+  } else {
+    res.status(403).json({ error: "Nicht autorisiert" });
+  }
+}
+
+// DELETE Spieler aus freiem Leaderboard (Admin-geschützt)
+app.delete("/api/frei/player/:name", checkAuth, (req, res) => {
+  const playerName = req.params.name;
+  if (!playerName) return res.status(400).json({ error: "Spielername fehlt" });
+
+  const matches = loadJSON(FREI_MATCHES);
+
+  const filteredMatches = matches.filter(
+    m => m.p1 !== playerName && m.p2 !== playerName
+  );
+
+  if (filteredMatches.length === matches.length) {
+    return res.status(404).json({ error: "Spieler nicht gefunden" });
+  }
+
+  saveJSON(FREI_MATCHES, filteredMatches);
+  res.json({ success: true, message: `Spieler '${playerName}' und alle seine Spiele wurden gelöscht.` });
+});
