@@ -150,9 +150,11 @@ th {
   background-color: white;
   padding: 10px;
   border-radius: 10px;
-  max-width: 90%;
-  max-height: 90%;
+  max-width: 1000px;   /* fixe max Breite */
+  width: 90vw;         /* responsiv, max 90% Viewportbreite */
+  max-height: 90vh;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  margin: 0 auto;      /* zentriert auf großen Bildschirmen */
 }
 
 #werbe-popup img {
