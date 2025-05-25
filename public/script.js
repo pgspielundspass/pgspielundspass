@@ -112,3 +112,36 @@ function getMatchResultText(match, name) {
   if ((match.result === "1" && match.p1.name === name) || (match.result === "2" && match.p2.name === name)) return "Gewonnen";
   return "Verloren";
 }
+<script>
+  window.addEventListener("load", () => {
+    const popup = document.getElementById("werbe-popup");
+    const closeBtn = document.getElementById("popup-close");
+
+    // Prüft, ob das Hochformat-Overlay sichtbar ist (damit kein Popup im Hochformat gezeigt wird)
+    const overlay = document.getElementById("rotate-warning"); // Falls dein Overlay eine andere ID hat, hier anpassen
+    const isOverlayVisible = () =>
+      overlay && window.getComputedStyle(overlay).display !== "none";
+
+    if (!isOverlayVisible()) {
+      // Popup sofort zeigen
+      popup.classList.remove("hidden");
+
+      // Schließen-Button deaktivieren
+      closeBtn.disabled = true;
+      closeBtn.title = "Bitte 5 Sekunden warten";
+
+      // Nach 5 Sekunden Button aktivieren
+      setTimeout(() => {
+        closeBtn.disabled = false;
+        closeBtn.title = "Werbung schließen";
+      }, 5000);
+
+      // Popup schließen nur möglich, wenn Button aktiviert ist
+      closeBtn.addEventListener("click", () => {
+        if (!closeBtn.disabled) {
+          popup.classList.add("hidden");
+        }
+      });
+    }
+  });
+</script>
