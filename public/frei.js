@@ -7,12 +7,14 @@ if (!deviceId) {
 let leaderboardData = [];
 
 async function submitMatch() {
-  const p1 = document.getElementById("p1").value.trim();
-  const p2 = document.getElementById("p2").value.trim();
+  const p1 = document.getElementById("p1Name").value.trim();
+  const c1 = document.getElementById("p1Class").value.trim();
+  const p2 = document.getElementById("p2Name").value.trim();
+  const c2 = document.getElementById("p2Class").value.trim();
   const result = document.getElementById("result").value;
 
-  if (!p1 || !p2) {
-    document.getElementById("status").textContent = "Bitte beide Spielernamen eingeben.";
+  if (!p1 || !p2 || !c1 || !c2) {
+    document.getElementById("status").textContent = "Bitte alle Felder ausfüllen.";
     return;
   }
 
@@ -20,20 +22,19 @@ async function submitMatch() {
     const res = await fetch("/api/frei/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ p1, p2, result, deviceId }),
+      body: JSON.stringify({ p1, c1, p2, c2, result, deviceId }),
     });
 
     const data = await res.json();
     document.getElementById("status").textContent = data.message;
 
     if (res.ok) {
-      document.getElementById("p1").value = "";
-      document.getElementById("p2").value = "";
+      document.querySelectorAll("input").forEach(i => i.value = "");
       document.getElementById("result").value = "1";
       await loadLeaderboard();
     }
   } catch {
-    document.getElementById("status").textContent = "Fehler beim Eintragen.";
+    document.getElementById("status").textContent = "Fehler beim Senden.";
   }
 }
 
@@ -48,16 +49,31 @@ async function loadLeaderboard() {
 }
 
 function renderLeaderboard() {
-  const search = document.getElementById("searchInput").value.trim().toLowerCase();
   const table = document.getElementById("leaderboard");
-  table.innerHTML = "<tr><th>Spieler</th><th>Siege</th></tr>";
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const filtered = leaderboardData.filter(p =>
+    p.name.toLowerCase().includes(search) || p.class.toLowerCase().includes(search)
+  );
 
-  for (const player of leaderboardData) {
-    if (!search || player.name.toLowerCase().includes(search)) {
-      const row = `<tr><td>${player.name}</td><td>${player.wins}</td></tr>`;
-      table.innerHTML += row;
-    }
+  table.innerHTML = `
+    <tr>
+      <th>Name</th><th>Klasse</th><th>Siege</th><th>Ndl.</th><th>Unent.</th><th>Punkte</th>
+    </tr>
+  `;
+
+  for (const player of filtered) {
+    table.innerHTML += `
+      <tr>
+        <td>${player.name}</td>
+        <td>${player.class}</td>
+        <td>${player.wins}</td>
+        <td>${player.losses}</td>
+        <td>${player.draws}</td>
+        <td>${player.points}</td>
+      </tr>
+    `;
   }
 }
 
 loadLeaderboard();
+
