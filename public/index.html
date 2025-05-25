@@ -9,10 +9,12 @@
 <body>
   <div class="container">
     <h1>PG Teacher Clash Leaderboard</h1>
+
     <div id="login">
       <input type="password" id="password" placeholder="Admin-Passwort">
       <button onclick="login()">Login</button>
     </div>
+
     <div id="admin" style="display:none;">
       <h2>Neues Match hinzufügen</h2>
       <input type="text" id="p1Name" placeholder="Spieler 1 Name">
@@ -27,18 +29,22 @@
       <button onclick="addMatch()">Match speichern</button>
       <button onclick="undoLast()">Letztes Match entfernen</button>
     </div>
+
     <h2>Leaderboard</h2>
     <input type="text" id="searchInput" onkeyup="renderLeaderboard()" placeholder="Suche Spieler...">
     <table id="leaderboard"></table>
     <div id="playerDetails"></div>
   </div>
-  <script src="script.js"></script>
+
   <!-- Werbe-Popup -->
-<div id="werbe-popup" class="hidden">
-  <div class="popup-content">
-    <button id="popup-close" disabled title="Bitte 5 Sekunden warten">×</button>
-    <img src="images/werbung.png" alt="Werbung deiner Firma">
+  <div id="werbe-popup" class="hidden">
+    <div class="popup-content">
+      <button id="popup-close" disabled title="Bitte 5 Sekunden warten">×</button>
+      <span id="countdown-text">Überspringbar in 5 Sekunden...</span>
+      <img src="images/werbung.png" alt="Werbung deiner Firma">
+    </div>
   </div>
-</div>
+
+  <script src="script.js"></script>
 </body>
 </html>
