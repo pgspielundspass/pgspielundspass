@@ -6,6 +6,7 @@ async function submitMatch() {
   const result = document.getElementById("result").value;
   const status = document.getElementById("status");
 
+  // Geräte-ID aus localStorage holen oder neu erstellen
   let deviceId = localStorage.getItem("deviceId");
   if (!deviceId) {
     deviceId = crypto.randomUUID();
@@ -21,12 +22,13 @@ async function submitMatch() {
     const res = await fetch("/api/frei/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ p1, p1Class, p2, p2Class, result, deviceId }),
+      body: JSON.stringify({ p1, p1Class, p2, p2Class, result, deviceId }), // deviceId mitsenden
     });
 
     const data = await res.json();
     status.textContent = data.message;
     if (res.ok) {
+      // Formular zurücksetzen
       document.getElementById("p1Name").value = "";
       document.getElementById("p1Class").value = "";
       document.getElementById("p2Name").value = "";
@@ -70,4 +72,3 @@ async function loadLeaderboard() {
 }
 
 loadLeaderboard();
-
