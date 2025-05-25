@@ -8,10 +8,12 @@ const PORT = process.env.PORT || 3000;
 
 const DATA_PATH = path.join(__dirname, "data", "matches.json");
 const HASH_PATH = path.join(__dirname, "admin.hash");
+
 const FREI_MATCHES = path.join(__dirname, "data", "frei-matches.json");
 const FREI_LOG = path.join(__dirname, "data", "frei-log.json");
 
 const adminHash = fs.existsSync(HASH_PATH) ? fs.readFileSync(HASH_PATH, "utf-8").trim() : null;
+
 const activeSessions = new Set();
 
 app.use(express.json());
@@ -30,9 +32,10 @@ function getClientIP(req) {
   return (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
 }
 
+// --- Admin Login ---
 app.post("/api/login", (req, res) => {
   const { password } = req.body;
-  if (!adminHash) return res.status(500).json({ success: false, error: "Admin-Hash nicht gefunden" });
+  if (!adminHash) return res.status(500).json({ success: false, error: "Admin-Hash fehlt" });
 
   const hash = crypto.createHash("sha256").update(password).digest("hex");
   if (hash === adminHash) {
@@ -53,6 +56,7 @@ function checkAuth(req, res, next) {
   }
 }
 
+// --- API: Geschützte Matches (Admin) ---
 app.get("/api/matches", (req, res) => {
   fs.readFile(DATA_PATH, (err, data) => {
     if (err) return res.status(500).json({ error: "Datei nicht lesbar" });
@@ -75,30 +79,34 @@ app.delete("/api/matches/last", checkAuth, (req, res) => {
   res.json({ success: true });
 });
 
+// --- API: Freie Matches ---
 app.post("/api/frei/add", (req, res) => {
-  const { p1, p2, result, deviceId, p1Class, p2Class } = req.body;
+  const { p1, p1Class, p2, p2Class, result, deviceId } = req.body;
   const ip = getClientIP(req);
 
-  if (!p1 || !p2 || !result || !deviceId || !p1Class || !p2Class) {
+  if (!p1 || !p2 || !p1Class || !p2Class || !result || !deviceId) {
     return res.status(400).json({ message: "Ungültige Daten." });
   }
 
   const log = loadJSON(FREI_LOG);
   const today = new Date().toISOString().slice(0, 10);
-  const alreadySubmitted = log.find(entry => entry.ip === ip && entry.deviceId === deviceId && entry.date === today);
+
+  const alreadySubmitted = log.find(
+    entry => entry.ip === ip && entry.deviceId === deviceId && entry.date === today
+  );
 
   if (alreadySubmitted) {
     return res.status(429).json({ message: "Nur ein Eintrag pro Tag erlaubt." });
   }
 
   const matches = loadJSON(FREI_MATCHES);
-  matches.push({ p1, p2, result, p1Class, p2Class, timestamp: Date.now() });
+  matches.push({ p1, p1Class, p2, p2Class, result, timestamp: Date.now() });
   saveJSON(FREI_MATCHES, matches);
 
   log.push({ ip, deviceId, date: today });
   saveJSON(FREI_LOG, log);
 
-  res.json({ message: "Eintrag gespeichert!" });
+  res.json({ message: "Match gespeichert!" });
 });
 
 app.get("/api/frei/leaderboard", (req, res) => {
@@ -106,33 +114,36 @@ app.get("/api/frei/leaderboard", (req, res) => {
   const stats = {};
 
   for (const match of matches) {
-    const key1 = `${match.p1}__${match.p1Class}`;
-    const key2 = `${match.p2}__${match.p2Class}`;
+    const p1Key = `${match.p1} ${match.p1Class}`;
+    const p2Key = `${match.p2} ${match.p2Class}`;
 
-    if (!stats[key1]) stats[key1] = { name: match.p1, class: match.p1Class, wins: 0, losses: 0, draws: 0, points: 0 };
-    if (!stats[key2]) stats[key2] = { name: match.p2, class: match.p2Class, wins: 0, losses: 0, draws: 0, points: 0 };
+    if (!stats[p1Key]) stats[p1Key] = { name: match.p1, class: match.p1Class, wins: 0, losses: 0, draws: 0, points: 0 };
+    if (!stats[p2Key]) stats[p2Key] = { name: match.p2, class: match.p2Class, wins: 0, losses: 0, draws: 0, points: 0 };
 
     if (match.result === "1") {
-      stats[key1].wins++;
-      stats[key1].points += 2;
-      stats[key2].losses++;
-      stats[key2].points -= 1;
+      stats[p1Key].wins++;
+      stats[p1Key].points += 2;
+      stats[p2Key].losses++;
+      stats[p2Key].points -= 1;
     } else if (match.result === "2") {
-      stats[key2].wins++;
-      stats[key2].points += 2;
-      stats[key1].losses++;
-      stats[key1].points -= 1;
+      stats[p2Key].wins++;
+      stats[p2Key].points += 2;
+      stats[p1Key].losses++;
+      stats[p1Key].points -= 1;
     } else if (match.result === "draw") {
-      stats[key1].draws++;
-      stats[key2].draws++;
+      stats[p1Key].draws++;
+      stats[p2Key].draws++;
     }
   }
 
-  const leaderboard = Object.values(stats).sort((a, b) => b.points - a.points);
+  const leaderboard = Object.entries(stats)
+    .map(([_, s]) => s)
+    .sort((a, b) => b.points - a.points);
+
   res.json(leaderboard);
 });
 
+// --- Server starten ---
 app.listen(PORT, () => {
   console.log(`Server läuft auf http://localhost:${PORT}`);
 });
-
