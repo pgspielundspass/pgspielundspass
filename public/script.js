@@ -112,7 +112,7 @@ function getMatchResultText(match, name) {
   if ((match.result === "1" && match.p1.name === name) || (match.result === "2" && match.p2.name === name)) return "Gewonnen";
   return "Verloren";
 }
-<script>
+
   window.addEventListener("load", () => {
     const popup = document.getElementById("werbe-popup");
     const closeBtn = document.getElementById("popup-close");
@@ -144,4 +144,4 @@ function getMatchResultText(match, name) {
       });
     }
   });
-</script>
+
