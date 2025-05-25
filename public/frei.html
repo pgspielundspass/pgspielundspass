@@ -1,1 +1,31 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Freies Leaderboard</title>
+  <link rel="stylesheet" href="/frei.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div class="container">
+    <h1>Freies PG Leaderboard</h1>
+
+    <div id="form">
+      <input type="text" id="p1" placeholder="Spieler 1">
+      <input type="text" id="p2" placeholder="Spieler 2">
+      <select id="result">
+        <option value="1">Spieler 1 gewinnt</option>
+        <option value="2">Spieler 2 gewinnt</option>
+        <option value="draw">Unentschieden</option>
+      </select>
+      <button onclick="submitMatch()">Match eintragen</button>
+      <p id="status"></p>
+    </div>
+
+    <h2>Leaderboard</h2>
+    <table id="leaderboard"></table>
+  </div>
+  <script src="/frei.js"></script>
+</body>
+</html>
 
