@@ -25,12 +25,24 @@
     </div>
 
     <h2>Leaderboard</h2>
-    <input type="text" id="searchInput" placeholder="Suche Spieler..." oninput="renderLeaderboard()" />
+    <input type="text" id="searchInput" placeholder="Suche Spieler..." oninput="loadLeaderboard()" />
     <table id="leaderboard"></table>
+
+    <hr />
+    <h2>Admin-Bereich</h2>
+    <div id="adminLogin">
+      <input type="password" id="adminPassword" placeholder="Admin-Passwort" />
+      <button onclick="adminLogin()">Login</button>
+      <p id="loginMessage"></p>
+    </div>
+
+    <div id="adminPanel" style="display:none;">
+      <input type="text" id="deletePlayerName" placeholder="Spielername zum Löschen" />
+      <button onclick="deletePlayer()">Spieler löschen</button>
+      <p id="deleteMessage"></p>
+    </div>
   </div>
 
   <script src="/frei.js"></script>
 </body>
 </html>
-
-
