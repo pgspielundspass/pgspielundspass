@@ -1,42 +1,33 @@
-// frei.js
-document.addEventListener("DOMContentLoaded", () => {
-  loadLeaderboard();
-});
+let deviceId = localStorage.getItem("deviceId");
+if (!deviceId) {
+  deviceId = crypto.randomUUID();
+  localStorage.setItem("deviceId", deviceId);
+}
 
-function submitMatch() {
-  const p1 = document.getElementById("p1Name").value.trim();
-  const p2 = document.getElementById("p2Name").value.trim();
+async function submitMatch() {
+  const p1 = document.getElementById("p1").value.trim();
+  const p2 = document.getElementById("p2").value.trim();
   const result = document.getElementById("result").value;
-
-  fetch("/frei/submit", {
+  const res = await fetch("/api/frei/add", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ p1, p2, result })
-  })
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("status").textContent = data.message;
-      if (data.success) {
-        loadLeaderboard();
-      }
-    });
+    body: JSON.stringify({ p1, p2, result, deviceId })
+  });
+
+  const data = await res.json();
+  document.getElementById("status").textContent = data.message;
+  if (res.ok) loadLeaderboard();
 }
 
-function loadLeaderboard() {
-  fetch("/frei/leaderboard")
-    .then(res => res.json())
-    .then(data => {
-      const table = document.getElementById("leaderboard");
-      table.innerHTML = "<tr><th>Spieler</th><th>Siege</th><th>Niederlagen</th><th>Unentschieden</th></tr>";
-      data.forEach(player => {
-        const row = `<tr>
-          <td>${player.name}</td>
-          <td>${player.wins}</td>
-          <td>${player.losses}</td>
-          <td>${player.draws}</td>
-        </tr>`;
-        table.innerHTML += row;
-      });
-    });
+async function loadLeaderboard() {
+  const res = await fetch("/api/frei/leaderboard");
+  const data = await res.json();
+  const table = document.getElementById("leaderboard");
+  table.innerHTML = "<tr><th>Spieler</th><th>Siege</th></tr>";
+  for (const player of data) {
+    const row = `<tr><td>${player.name}</td><td>${player.wins}</td></tr>`;
+    table.innerHTML += row;
+  }
 }
 
+loadLeaderboard();
