@@ -6,7 +6,6 @@ async function submitMatch() {
   const result = document.getElementById("result").value;
   const status = document.getElementById("status");
 
-  // Geräte-ID aus localStorage holen oder neu erstellen
   let deviceId = localStorage.getItem("deviceId");
   if (!deviceId) {
     deviceId = crypto.randomUUID();
@@ -28,7 +27,6 @@ async function submitMatch() {
     const data = await res.json();
     status.textContent = data.message;
     if (res.ok) {
-      // Formular zurücksetzen
       document.getElementById("p1Name").value = "";
       document.getElementById("p1Class").value = "";
       document.getElementById("p2Name").value = "";
@@ -73,11 +71,8 @@ async function loadLeaderboard() {
 
 loadLeaderboard();
 
-// --------- Admin Funktionen -----------
-
 let authToken = null;
 
-// Admin-Login
 async function adminLogin() {
   const password = document.getElementById("adminPassword").value;
   const loginMessage = document.getElementById("loginMessage");
@@ -109,7 +104,6 @@ async function adminLogin() {
   }
 }
 
-// Spieler löschen
 async function deletePlayer() {
   const playerName = document.getElementById("deletePlayerName").value.trim();
   const deleteMessage = document.getElementById("deleteMessage");
@@ -134,7 +128,7 @@ async function deletePlayer() {
 
     if (res.ok) {
       deleteMessage.textContent = data.message || "Spieler gelöscht.";
-      loadLeaderboard(); // Leaderboard aktualisieren
+      loadLeaderboard();
       document.getElementById("deletePlayerName").value = "";
     } else {
       deleteMessage.textContent = data.error || "Fehler beim Löschen.";
@@ -143,4 +137,3 @@ async function deletePlayer() {
     deleteMessage.textContent = "Fehler beim Löschen.";
   }
 }
-
