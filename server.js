@@ -187,7 +187,45 @@ app.get("/api/frei/leaderboard", (req, res) => {
   res.json(leaderboard);
 });
 
-// Starte Server
+// --- NEU: Spieler löschen im freien Bereich (admin-auth) ---
+app.delete("/api/frei/player/:name/:class", checkAuth, (req, res) => {
+  try {
+    const playerName = decodeURIComponent(req.params.name);
+    const playerClass = decodeURIComponent(req.params.class);
+
+    if (!playerName || !playerClass) {
+      return res.status(400).json({ error: "Name und Klasse müssen angegeben werden." });
+    }
+
+    const matches = loadJSON(FREI_MATCHES_PATH);
+    if (!Array.isArray(matches)) {
+      return res.status(500).json({ error: "Interner Fehler: Matchdaten nicht verfügbar." });
+    }
+
+    const filteredMatches = matches.filter(
+      (m) =>
+        !(
+          (m.p1 === playerName && m.p1Class === playerClass) ||
+          (m.p2 === playerName && m.p2Class === playerClass)
+        )
+    );
+
+    if (filteredMatches.length === matches.length) {
+      return res.status(404).json({ error: "Spieler mit dieser Klasse nicht gefunden." });
+    }
+
+    saveJSON(FREI_MATCHES_PATH, filteredMatches);
+    res.json({
+      success: true,
+      message: `Spieler '${playerName}' (Klasse ${playerClass}) und alle seine Spiele wurden gelöscht.`,
+    });
+  } catch (err) {
+    console.error("Fehler beim Löschen des Spielers:", err);
+    res.status(500).json({ error: "Fehler beim Löschen des Spielers." });
+  }
+});
+
+// Server starten
 app.listen(PORT, () => {
   console.log(`Server läuft auf http://localhost:${PORT}`);
 });
