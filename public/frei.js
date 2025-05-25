@@ -22,7 +22,7 @@ async function submitMatch() {
     const res = await fetch("/api/frei/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ p1, p1Class, p2, p2Class, result, deviceId }), // deviceId mitsenden
+      body: JSON.stringify({ p1, p1Class, p2, p2Class, result, deviceId }),
     });
 
     const data = await res.json();
@@ -72,3 +72,75 @@ async function loadLeaderboard() {
 }
 
 loadLeaderboard();
+
+// --------- Admin Funktionen -----------
+
+let authToken = null;
+
+// Admin-Login
+async function adminLogin() {
+  const password = document.getElementById("adminPassword").value;
+  const loginMessage = document.getElementById("loginMessage");
+  loginMessage.textContent = "";
+
+  if (!password) {
+    loginMessage.textContent = "Bitte Passwort eingeben.";
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+
+    const data = await res.json();
+    if (res.ok && data.token) {
+      authToken = data.token;
+      loginMessage.textContent = "Login erfolgreich.";
+      document.getElementById("adminLogin").style.display = "none";
+      document.getElementById("adminPanel").style.display = "block";
+    } else {
+      loginMessage.textContent = data.error || "Login fehlgeschlagen.";
+    }
+  } catch {
+    loginMessage.textContent = "Fehler beim Login.";
+  }
+}
+
+// Spieler löschen
+async function deletePlayer() {
+  const playerName = document.getElementById("deletePlayerName").value.trim();
+  const deleteMessage = document.getElementById("deleteMessage");
+  deleteMessage.textContent = "";
+
+  if (!playerName) {
+    deleteMessage.textContent = "Bitte Spielername eingeben!";
+    return;
+  }
+  if (!authToken) {
+    deleteMessage.textContent = "Bitte erst als Admin einloggen.";
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/frei/player/${encodeURIComponent(playerName)}`, {
+      method: "DELETE",
+      headers: { "Authorization": authToken }
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      deleteMessage.textContent = data.message || "Spieler gelöscht.";
+      loadLeaderboard(); // Leaderboard aktualisieren
+      document.getElementById("deletePlayerName").value = "";
+    } else {
+      deleteMessage.textContent = data.error || "Fehler beim Löschen.";
+    }
+  } catch {
+    deleteMessage.textContent = "Fehler beim Löschen.";
+  }
+}
+
