@@ -29,7 +29,12 @@ function saveJSON(filepath, data) {
 }
 
 function getClientIP(req) {
+  // IP aus x-forwarded-for Header oder socket remoteAddress
   return (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+}
+
+function getUserAgent(req) {
+  return req.headers["user-agent"] || "";
 }
 
 // --- Admin Login ---
@@ -83,6 +88,7 @@ app.delete("/api/matches/last", checkAuth, (req, res) => {
 app.post("/api/frei/add", (req, res) => {
   const { p1, p1Class, p2, p2Class, result, deviceId } = req.body;
   const ip = getClientIP(req);
+  const userAgent = getUserAgent(req);
 
   if (!p1 || !p2 || !p1Class || !p2Class || !result || !deviceId) {
     return res.status(400).json({ message: "Ungültige Daten." });
@@ -91,24 +97,31 @@ app.post("/api/frei/add", (req, res) => {
   const log = loadJSON(FREI_LOG);
   const today = new Date().toISOString().slice(0, 10);
 
-  const alreadySubmitted = log.find(
-    entry => entry.ip === ip && entry.deviceId === deviceId && entry.date === today
+  // Prüfen, ob heute schon ein Eintrag von dieser IP + deviceId + userAgent gemacht wurde
+  const alreadySubmitted = log.find(entry =>
+    entry.ip === ip &&
+    entry.deviceId === deviceId &&
+    entry.userAgent === userAgent &&
+    entry.date === today
   );
 
   if (alreadySubmitted) {
     return res.status(429).json({ message: "Nur ein Eintrag pro Tag erlaubt." });
   }
 
+  // Match speichern
   const matches = loadJSON(FREI_MATCHES);
   matches.push({ p1, p1Class, p2, p2Class, result, timestamp: Date.now() });
   saveJSON(FREI_MATCHES, matches);
 
-  log.push({ ip, deviceId, date: today });
+  // Log-Eintrag speichern
+  log.push({ ip, deviceId, userAgent, date: today });
   saveJSON(FREI_LOG, log);
 
   res.json({ message: "Match gespeichert!" });
 });
 
+// Leaderboard aus freien Matches
 app.get("/api/frei/leaderboard", (req, res) => {
   const matches = loadJSON(FREI_MATCHES);
   const stats = {};
@@ -136,9 +149,7 @@ app.get("/api/frei/leaderboard", (req, res) => {
     }
   }
 
-  const leaderboard = Object.entries(stats)
-    .map(([_, s]) => s)
-    .sort((a, b) => b.points - a.points);
+  const leaderboard = Object.values(stats).sort((a, b) => b.points - a.points);
 
   res.json(leaderboard);
 });
