@@ -113,35 +113,41 @@ function getMatchResultText(match, name) {
   return "Verloren";
 }
 
-  window.addEventListener("load", () => {
-    const popup = document.getElementById("werbe-popup");
-    const closeBtn = document.getElementById("popup-close");
+// === Werbe-Popup mit Countdown ===
+window.addEventListener("load", () => {
+  const popup = document.getElementById("werbe-popup");
+  const closeBtn = document.getElementById("popup-close");
+  const countdownText = document.getElementById("countdown-text");
 
-    // Prüft, ob das Hochformat-Overlay sichtbar ist (damit kein Popup im Hochformat gezeigt wird)
-    const overlay = document.getElementById("rotate-warning"); // Falls dein Overlay eine andere ID hat, hier anpassen
-    const isOverlayVisible = () =>
-      overlay && window.getComputedStyle(overlay).display !== "none";
+  const overlay = document.getElementById("rotate-warning");
+  const isOverlayVisible = () =>
+    overlay && window.getComputedStyle(overlay).display !== "none";
 
-    if (!isOverlayVisible()) {
-      // Popup sofort zeigen
-      popup.classList.remove("hidden");
+  if (!isOverlayVisible()) {
+    popup.classList.remove("hidden");
+    closeBtn.disabled = true;
+    closeBtn.title = "Bitte 5 Sekunden warten";
 
-      // Schließen-Button deaktivieren
-      closeBtn.disabled = true;
-      closeBtn.title = "Bitte 5 Sekunden warten";
+    let seconds = 5;
+    countdownText.textContent = `Überspringbar in ${seconds} Sekunden...`;
 
-      // Nach 5 Sekunden Button aktivieren
-      setTimeout(() => {
+    const interval = setInterval(() => {
+      seconds--;
+      if (seconds > 0) {
+        countdownText.textContent = `Überspringbar in ${seconds} Sekunden...`;
+      } else {
+        clearInterval(interval);
         closeBtn.disabled = false;
         closeBtn.title = "Werbung schließen";
-      }, 5000);
+        countdownText.textContent = "Jetzt schließen möglich";
+      }
+    }, 1000);
 
-      // Popup schließen nur möglich, wenn Button aktiviert ist
-      closeBtn.addEventListener("click", () => {
-        if (!closeBtn.disabled) {
-          popup.classList.add("hidden");
-        }
-      });
-    }
-  });
+    closeBtn.addEventListener("click", () => {
+      if (!closeBtn.disabled) {
+        popup.classList.add("hidden");
+      }
+    });
+  }
+});
 
