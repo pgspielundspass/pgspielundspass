@@ -1,1 +1,45 @@
+body {
+  background: #18232c;
+  color: #fff;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+}
+
+input, select, button {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+button {
+  background: #42b883;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #369b6e;
+}
+
+table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+  background: #2a3943;
+}
+
+th, td {
+  padding: 0.5rem;
+  text-align: center;
+  border: 1px solid #456b7c;
+}
 
