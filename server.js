@@ -29,7 +29,6 @@ function saveJSON(filepath, data) {
 }
 
 function getClientIP(req) {
-  // IP aus x-forwarded-for Header oder socket remoteAddress
   return (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
 }
 
@@ -97,7 +96,6 @@ app.post("/api/frei/add", (req, res) => {
   const log = loadJSON(FREI_LOG);
   const today = new Date().toISOString().slice(0, 10);
 
-  // Prüfen, ob heute schon ein Eintrag mit gleicher IP oder deviceId oder userAgent gemacht wurde
   const alreadySubmitted = log.find(entry =>
     entry.date === today && (
       entry.ip === ip ||
@@ -110,12 +108,10 @@ app.post("/api/frei/add", (req, res) => {
     return res.status(429).json({ message: "Nur ein Eintrag pro Tag erlaubt." });
   }
 
-  // Match speichern
   const matches = loadJSON(FREI_MATCHES);
   matches.push({ p1, p1Class, p2, p2Class, result, timestamp: Date.now() });
   saveJSON(FREI_MATCHES, matches);
 
-  // Log-Eintrag speichern
   log.push({ ip, deviceId, userAgent, date: today });
   saveJSON(FREI_LOG, log);
 
@@ -155,21 +151,6 @@ app.get("/api/frei/leaderboard", (req, res) => {
   res.json(leaderboard);
 });
 
-// --- Server starten ---
-app.listen(PORT, () => {
-  console.log(`Server läuft auf http://localhost:${PORT}`);
-});
-
-// Admin-Authentifizierung Middleware (falls noch nicht drin)
-function checkAuth(req, res, next) {
-  const token = req.headers["authorization"];
-  if (activeSessions.has(token)) {
-    next();
-  } else {
-    res.status(403).json({ error: "Nicht autorisiert" });
-  }
-}
-
 // DELETE Spieler aus freiem Leaderboard (Admin-geschützt)
 app.delete("/api/frei/player/:name", checkAuth, (req, res) => {
   const playerName = req.params.name;
@@ -187,4 +168,9 @@ app.delete("/api/frei/player/:name", checkAuth, (req, res) => {
 
   saveJSON(FREI_MATCHES, filteredMatches);
   res.json({ success: true, message: `Spieler '${playerName}' und alle seine Spiele wurden gelöscht.` });
+});
+
+// --- Server starten ---
+app.listen(PORT, () => {
+  console.log(`Server läuft auf http://localhost:${PORT}`);
 });
