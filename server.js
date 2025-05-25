@@ -75,3 +75,68 @@ app.delete("/api/matches/last", checkAuth, (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server läuft auf http://localhost:${PORT}`);
 });
+// Freie Website
+const fs = require("fs");
+const path = require("path");
+const express = require("express");
+const app = express();
+app.use(express.json());
+
+const FREI_MATCHES = path.join(__dirname, "data/frei-matches.json");
+const FREI_LOG = path.join(__dirname, "data/frei-log.json");
+
+function loadJSON(filepath) {
+  if (!fs.existsSync(filepath)) return [];
+  return JSON.parse(fs.readFileSync(filepath));
+}
+
+function saveJSON(filepath, data) {
+  fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
+}
+
+function getClientIP(req) {
+  return req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+}
+
+app.post("/api/frei/add", (req, res) => {
+  const { p1, p2, result, deviceId } = req.body;
+  const ip = getClientIP(req);
+  if (!p1 || !p2 || !result || !deviceId) {
+    return res.status(400).json({ message: "Ungültige Daten." });
+  }
+
+  const log = loadJSON(FREI_LOG);
+  const today = new Date().toISOString().slice(0, 10);
+  const alreadySubmitted = log.find(
+    entry => entry.ip === ip && entry.deviceId === deviceId && entry.date === today
+  );
+
+  if (alreadySubmitted) {
+    return res.status(429).json({ message: "Nur ein Eintrag pro Tag erlaubt." });
+  }
+
+  const matches = loadJSON(FREI_MATCHES);
+  matches.push({ p1, p2, result, timestamp: Date.now() });
+  saveJSON(FREI_MATCHES, matches);
+
+  log.push({ ip, deviceId, date: today });
+  saveJSON(FREI_LOG, log);
+
+  res.json({ message: "Eintrag gespeichert!" });
+});
+
+app.get("/api/frei/leaderboard", (req, res) => {
+  const matches = loadJSON(FREI_MATCHES);
+  const players = {};
+
+  for (const match of matches) {
+    if (match.result === "1") players[match.p1] = (players[match.p1] || 0) + 1;
+    else if (match.result === "2") players[match.p2] = (players[match.p2] || 0) + 1;
+  }
+
+  const leaderboard = Object.entries(players)
+    .map(([name, wins]) => ({ name, wins }))
+    .sort((a, b) => b.wins - a.wins);
+
+  res.json(leaderboard);
+});
