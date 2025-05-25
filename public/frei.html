@@ -11,8 +11,10 @@
     <h1>Freies PG Leaderboard</h1>
 
     <div id="form">
-      <input type="text" id="p1" placeholder="Spieler 1 Name" />
-      <input type="text" id="p2" placeholder="Spieler 2 Name" />
+      <input type="text" id="p1Name" placeholder="Spieler 1 Name" />
+      <input type="text" id="p1Class" placeholder="Spieler 1 Klasse" />
+      <input type="text" id="p2Name" placeholder="Spieler 2 Name" />
+      <input type="text" id="p2Class" placeholder="Spieler 2 Klasse" />
       <select id="result">
         <option value="1">Spieler 1 gewinnt</option>
         <option value="2">Spieler 2 gewinnt</option>
@@ -23,7 +25,7 @@
     </div>
 
     <h2>Leaderboard</h2>
-    <input type="text" id="searchInput" placeholder="Suche Spieler..." oninput="renderLeaderboard()" />
+    <input type="text" id="searchInput" placeholder="Suche Spieler oder Klasse..." oninput="renderLeaderboard()" />
     <table id="leaderboard"></table>
   </div>
 
