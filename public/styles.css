@@ -172,6 +172,14 @@ th {
   cursor: pointer;
 }
 
+#countdown-text {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+}
+
 /* Button optisch deaktivieren, wenn er nicht klickbar ist */
 #popup-close:disabled {
   opacity: 0.5;
