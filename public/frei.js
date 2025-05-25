@@ -106,11 +106,12 @@ async function adminLogin() {
 
 async function deletePlayer() {
   const playerName = document.getElementById("deletePlayerName").value.trim();
+  const playerClass = document.getElementById("deletePlayerClass").value.trim();
   const deleteMessage = document.getElementById("deleteMessage");
   deleteMessage.textContent = "";
 
-  if (!playerName) {
-    deleteMessage.textContent = "Bitte Spielername eingeben!";
+  if (!playerName || !playerClass) {
+    deleteMessage.textContent = "Bitte Name und Klasse eingeben!";
     return;
   }
   if (!authToken) {
@@ -119,7 +120,7 @@ async function deletePlayer() {
   }
 
   try {
-    const res = await fetch(`/api/frei/player/${encodeURIComponent(playerName)}`, {
+    const res = await fetch(`/api/frei/player/${encodeURIComponent(playerName)}/${encodeURIComponent(playerClass)}`, {
       method: "DELETE",
       headers: { "Authorization": authToken }
     });
@@ -130,6 +131,7 @@ async function deletePlayer() {
       deleteMessage.textContent = data.message || "Spieler gelöscht.";
       loadLeaderboard();
       document.getElementById("deletePlayerName").value = "";
+      document.getElementById("deletePlayerClass").value = "";
     } else {
       deleteMessage.textContent = data.error || "Fehler beim Löschen.";
     }
