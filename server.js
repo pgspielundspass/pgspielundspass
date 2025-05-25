@@ -13,7 +13,6 @@ const FREI_MATCHES = path.join(__dirname, "data", "frei-matches.json");
 const FREI_LOG = path.join(__dirname, "data", "frei-log.json");
 
 const adminHash = fs.existsSync(HASH_PATH) ? fs.readFileSync(HASH_PATH, "utf-8").trim() : null;
-
 const activeSessions = new Set();
 
 app.use(express.json());
@@ -36,7 +35,6 @@ function getUserAgent(req) {
   return req.headers["user-agent"] || "";
 }
 
-// --- Admin Login ---
 app.post("/api/login", (req, res) => {
   const { password } = req.body;
   if (!adminHash) return res.status(500).json({ success: false, error: "Admin-Hash fehlt" });
@@ -60,30 +58,6 @@ function checkAuth(req, res, next) {
   }
 }
 
-// --- API: Geschützte Matches (Admin) ---
-app.get("/api/matches", (req, res) => {
-  fs.readFile(DATA_PATH, (err, data) => {
-    if (err) return res.status(500).json({ error: "Datei nicht lesbar" });
-    res.json(JSON.parse(data));
-  });
-});
-
-app.post("/api/matches", checkAuth, (req, res) => {
-  const newMatch = req.body;
-  const matches = loadJSON(DATA_PATH);
-  matches.push(newMatch);
-  saveJSON(DATA_PATH, matches);
-  res.json({ success: true });
-});
-
-app.delete("/api/matches/last", checkAuth, (req, res) => {
-  const matches = loadJSON(DATA_PATH);
-  matches.pop();
-  saveJSON(DATA_PATH, matches);
-  res.json({ success: true });
-});
-
-// --- API: Freie Matches ---
 app.post("/api/frei/add", (req, res) => {
   const { p1, p1Class, p2, p2Class, result, deviceId } = req.body;
   const ip = getClientIP(req);
@@ -118,7 +92,6 @@ app.post("/api/frei/add", (req, res) => {
   res.json({ message: "Match gespeichert!" });
 });
 
-// Leaderboard aus freien Matches
 app.get("/api/frei/leaderboard", (req, res) => {
   const matches = loadJSON(FREI_MATCHES);
   const stats = {};
@@ -147,30 +120,34 @@ app.get("/api/frei/leaderboard", (req, res) => {
   }
 
   const leaderboard = Object.values(stats).sort((a, b) => b.points - a.points);
-
   res.json(leaderboard);
 });
 
-// DELETE Spieler aus freiem Leaderboard (Admin-geschützt)
-app.delete("/api/frei/player/:name", checkAuth, (req, res) => {
-  const playerName = req.params.name;
-  if (!playerName) return res.status(400).json({ error: "Spielername fehlt" });
+app.delete("/api/frei/player/:name/:class", checkAuth, (req, res) => {
+  const playerName = decodeURIComponent(req.params.name);
+  const playerClass = decodeURIComponent(req.params.class);
+  if (!playerName || !playerClass) {
+    return res.status(400).json({ error: "Name und Klasse müssen angegeben werden." });
+  }
 
   const matches = loadJSON(FREI_MATCHES);
 
   const filteredMatches = matches.filter(
-    m => m.p1 !== playerName && m.p2 !== playerName
+    m =>
+      !(
+        (m.p1 === playerName && m.p1Class === playerClass) ||
+        (m.p2 === playerName && m.p2Class === playerClass)
+      )
   );
 
   if (filteredMatches.length === matches.length) {
-    return res.status(404).json({ error: "Spieler nicht gefunden" });
+    return res.status(404).json({ error: "Spieler mit dieser Klasse nicht gefunden." });
   }
 
   saveJSON(FREI_MATCHES, filteredMatches);
-  res.json({ success: true, message: `Spieler '${playerName}' und alle seine Spiele wurden gelöscht.` });
+  res.json({ success: true, message: `Spieler '${playerName}' (Klasse ${playerClass}) und alle seine Spiele wurden gelöscht.` });
 });
 
-// --- Server starten ---
 app.listen(PORT, () => {
   console.log(`Server läuft auf http://localhost:${PORT}`);
 });
