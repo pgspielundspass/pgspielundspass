@@ -97,12 +97,13 @@ app.post("/api/frei/add", (req, res) => {
   const log = loadJSON(FREI_LOG);
   const today = new Date().toISOString().slice(0, 10);
 
-  // Prüfen, ob heute schon ein Eintrag von dieser IP + deviceId + userAgent gemacht wurde
+  // Prüfen, ob heute schon ein Eintrag mit gleicher IP oder deviceId oder userAgent gemacht wurde
   const alreadySubmitted = log.find(entry =>
-    entry.ip === ip &&
-    entry.deviceId === deviceId &&
-    entry.userAgent === userAgent &&
-    entry.date === today
+    entry.date === today && (
+      entry.ip === ip ||
+      entry.deviceId === deviceId ||
+      entry.userAgent === userAgent
+    )
   );
 
   if (alreadySubmitted) {
@@ -158,3 +159,4 @@ app.get("/api/frei/leaderboard", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server läuft auf http://localhost:${PORT}`);
 });
+
